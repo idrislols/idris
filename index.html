@@ -1,0 +1,236 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Landing Page</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      cursor: none; /* Hide default cursor */
+    }
+
+    /* Intro screen styles */
+    #intro-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      cursor: pointer;
+      opacity: 1;
+      transition: opacity 1s ease-in-out;
+    }
+
+    #intro-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #intro-text {
+      color: white;
+      font-size: 48px;
+      font-style: italic;
+      font-weight: 100;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6);
+      animation: glow 1.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6);
+      }
+      to {
+        text-shadow: 0 0 20px rgba(255, 255, 255, 1), 0 0 30px rgba(255, 255, 255, 0.8);
+      }
+    }
+
+    /* Main content styles */
+    #main-content {
+      display: none; /* Hidden until intro screen is clicked */
+      height: 100%;
+      position: relative;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .text-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 10;
+    }
+
+    .name {
+      color: white;
+      font-size: 48px;
+      font-style: italic;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6);
+      animation: glow 1.5s ease-in-out infinite alternate;
+      margin-bottom: 10px; /* Space between Idris and On hiatus */
+    }
+
+    .hiatus {
+      color: white;
+      font-size: 24px; /* Smaller font */
+      font-style: italic;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6);
+      animation: glow 1.5s ease-in-out infinite alternate;
+    }
+
+    /* Cursor trail styles */
+    .cursor-trail {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 8px solid white;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      animation: rotate 1s linear infinite;
+    }
+
+    .cursor-trail.active {
+      opacity: 0.8;
+    }
+
+    @keyframes rotate {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Intro screen -->
+  <div id="intro-screen" onclick="enterSite()">
+    <div id="intro-text">Enter...</div>
+  </div>
+
+  <!-- Main content -->
+  <div id="main-content">
+    <video autoplay muted loop>
+      <source src="https://files.catbox.moe/c9wk1k.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <audio id="background-audio" loop>
+      <source src="https://files.catbox.moe/ia3a79.mp3" type="audio/mp3">
+      Your browser does not support the audio element.
+    </audio>
+    <div class="text-container">
+      <div class="name">Idris</div>
+      <div class="hiatus">On hiatus.</div>
+    </div>
+  </div>
+
+  <script>
+    function enterSite() {
+      const introScreen = document.getElementById('intro-screen');
+      introScreen.classList.add('hidden');
+      setTimeout(() => {
+        introScreen.style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        // Start audio playback
+        document.getElementById('background-audio').play();
+      }, 1000); // Match the transition duration
+    }
+
+    // Allow entering with any key press
+    document.addEventListener('keydown', enterSite);
+
+    // Cursor trail effect
+    const trailContainer = document.body;
+    let trailElements = [];
+
+    document.addEventListener('mousemove', (e) => {
+      const trail = document.createElement('div');
+      trail.className = 'cursor-trail';
+      trail.style.left = `${e.clientX}px`;
+      trail.style.top = `${e.clientY}px`;
+      trailContainer.appendChild(trail);
+
+      // Activate trail
+      setTimeout(() => {
+        trail.classList.add('active');
+      }, 0);
+
+      // Remove trail after 0.2 seconds
+      setTimeout(() => {
+        trail.style.opacity = '0';
+        setTimeout(() => {
+          trail.remove();
+        }, 200); // Match the transition duration
+      }, 200);
+
+      // Limit the number of trail elements to prevent performance issues
+      trailElements.push(trail);
+      if (trailElements.length > 50) {
+        const oldTrail = trailElements.shift();
+        oldTrail.remove();
+      }
+    });
+  </script>
+</body>
+</html>
