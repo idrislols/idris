@@ -12,22 +12,21 @@
                 var firstSheetName = workbook.SheetNames[0];
                 var worksheet = workbook.Sheets[firstSheetName];
 
-                // Convert sheet to JSON to filter blank rows
                 var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+          
                 var filteredData = jsonData.filter(row => row.some(filledCell));
 
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+          
                 var headerRowIndex = filteredData.findIndex((row, index) =>
                   row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
                 );
-                // Fallback
+  
                 if (headerRowIndex === -1 || headerRowIndex > 25) {
                   headerRowIndex = 0;
                 }
 
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+            
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); 
                 csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
                 return csv;
             } catch (e) {
@@ -50,10 +49,9 @@
       height: 100%;
       overflow: hidden;
       font-family: Arial, sans-serif;
-      cursor: none; /* Hide default cursor */
+      cursor: none; 
     }
 
-    /* Intro screen styles */
     #intro-screen {
       position: fixed;
       top: 0;
@@ -92,10 +90,8 @@
         text-shadow: 0 0 20px rgba(255, 255, 255, 1), 0 0 30px rgba(255, 255, 255, 0.8);
       }
     }
-
-    /* Main content styles */
     #main-content {
-      display: none; /* Hidden until intro screen is clicked */
+      display: none; 
       height: 100%;
       position: relative;
     }
@@ -124,18 +120,18 @@
       font-style: italic;
       text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6);
       animation: glow 1.5s ease-in-out infinite alternate;
-      margin-bottom: 10px; /* Space between Idris and On hiatus */
+      margin-bottom: 10px;
     }
 
     .hiatus {
       color: white;
-      font-size: 24px; /* Smaller font */
+      font-size: 24px;
       font-style: italic;
       text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6);
       animation: glow 1.5s ease-in-out infinite alternate;
     }
 
-    /* Cursor trail styles */
+
     .cursor-trail {
       position: absolute;
       width: 0;
@@ -192,15 +188,15 @@
       setTimeout(() => {
         introScreen.style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
-        // Start audio playback
+      
         document.getElementById('background-audio').play();
-      }, 1000); // Match the transition duration
+      }, 1000); 
     }
 
-    // Allow entering with any key press
+ 
     document.addEventListener('keydown', enterSite);
 
-    // Cursor trail effect
+  
     const trailContainer = document.body;
     let trailElements = [];
 
@@ -211,20 +207,19 @@
       trail.style.top = `${e.clientY}px`;
       trailContainer.appendChild(trail);
 
-      // Activate trail
+
       setTimeout(() => {
         trail.classList.add('active');
       }, 0);
 
-      // Remove trail after 0.2 seconds
       setTimeout(() => {
         trail.style.opacity = '0';
         setTimeout(() => {
           trail.remove();
-        }, 200); // Match the transition duration
+        }, 200); 
       }, 200);
 
-      // Limit the number of trail elements to prevent performance issues
+
       trailElements.push(trail);
       if (trailElements.length > 50) {
         const oldTrail = trailElements.shift();
