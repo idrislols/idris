@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idris</title>
+<style>
+  body {
+    margin: 0;
+    background-color: black;
+    overflow: hidden;
+    font-family: 'Georgia', serif;
+    cursor: none; /* Hide default cursor */
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes glow {
+    0%, 100% { text-shadow: 0 0 10px white, 0 0 20px white, 0 0 40px white; }
+    50% { text-shadow: 0 0 20px white, 0 0 40px white, 0 0 80px white; }
+  }
+
+  #enter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-style: italic;
+    font-size: 3em;
+    opacity: 0;
+    cursor: pointer;
+    animation: fadeIn 2s ease-in forwards, glow 3s ease-in-out infinite alternate;
+    transition: transform 0.3s ease;
+  }
+
+  #enter:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  #main {
+    display: none;
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  #textContainer {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    text-align: center;
+    z-index: 1;
+    font-style: italic;
+  }
+
+  #title {
+    font-size: 4em;
+    animation: glow 3s ease-in-out infinite alternate;
+  }
+
+  #subtitle {
+    font-size: 2em;
+    margin-top: 15px;
+    animation: glow 3s ease-in-out infinite alternate;
+  }
+
+  .link {
+    font-size: 1.5em;
+    margin-top: 15px;
+    color: white;
+    text-decoration: none;
+    display: block;
+    animation: glow 3s ease-in-out infinite alternate;
+    transition: transform 0.2s ease;
+  }
+
+  .link:hover {
+    transform: scale(1.1);
+    text-decoration: underline;
+  }
+
+  /* Triangle trail */
+  .triangle {
+    position: fixed;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 10px solid white;
+    opacity: 0.9;
+    pointer-events: none;
+    transform-origin: center;
+    animation: fadeOut 1s linear forwards;
+  }
+
+  @keyframes fadeOut {
+    from { opacity: 1; transform: scale(1) rotate(0deg); }
+    to { opacity: 0; transform: scale(0.5) rotate(360deg); }
+  }
+</style>
+</head>
+<body>
+
+<div id="enter">enter</div>
+
+<div id="main">
+  <video id="bgVideo" autoplay loop muted playsinline>
+    <source src="https://files.catbox.moe/hq5yyy.mp4" type="video/mp4">
+  </video>
+  <div id="textContainer">
+    <div id="title">Idris</div>
+    <div id="subtitle">dead metaphysician</div>
+    <a class="link" href="https://doxbin.net/user/turath" target="_blank">Doxbin - turath</a>
+    <a class="link" href="https://vilebin.wtf/user/suffer" target="_blank">Vilebin - suffer</a>
+  </div>
+  <audio id="bgAudio" loop>
+    <source src="https://files.catbox.moe/qcqjbw.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<script>
+  const enterText = document.getElementById('enter');
+  const main = document.getElementById('main');
+  const audio = document.getElementById('bgAudio');
+
+  function startMain() {
+    enterText.style.display = 'none';
+    main.style.display = 'block';
+    audio.play().catch(() => {
+      console.log('Autoplay blocked, click again to start audio.');
+    });
+  }
+
+  enterText.addEventListener('click', startMain);
+  document.addEventListener('keydown', startMain);
+
+  // Cursor trail effect
+  document.addEventListener('mousemove', (e) => {
+    const triangle = document.createElement('div');
+    triangle.className = 'triangle';
+    triangle.style.left = `${e.pageX}px`;
+    triangle.style.top = `${e.pageY}px`;
+    triangle.style.transform = `rotate(${Math.random() * 360}deg)`;
+    document.body.appendChild(triangle);
+    setTimeout(() => triangle.remove(), 1000);
+  });
+</script>
+
+</body>
+</html>
